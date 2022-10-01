@@ -1,0 +1,49 @@
+http:
+  address: ${HTTP_ADDRESS:0.0.0.0:4196}
+
+input:
+  label: input_kafka
+  kafka:
+    addresses:
+    - ${KAFKA_ADDRESS:localhost:9092}
+    tls:
+      enabled: ${KAFKA_TLS_ENABLED:false}
+    topics:
+    - ${KAFKA_TOPIC:messages}
+    target_version: ${KAFKA_VERSION:1.0.0}
+    sasl:
+      mechanism: ${KAFKA_SASL_MECHANISM:none}
+      user: ${KAFKA_USER}
+      password: ${KAFKA_PASSWORD}
+    client_id: ${KAFKA_CLIENT_ID:pipeline-b}
+    consumer_group: ${KAFKA_CONSUMER_GROUP:pipeline-b}
+    checkpoint_limit: ${KAFKA_CHECKPOINT_LIMIT:1}
+    batching:
+      count: ${KAFKA_OUTPUT_BATCH_COUNT:0}
+      byte_size: ${KAFKA_OUTPUT_BATCH_BYTE_SIZE:0}
+      period: ${KAFKA_OUTPUT_BATCH_PERIOD:""}
+
+pipeline:
+  processors:
+  - log:
+      level: INFO
+      message: "msg"
+      fields:
+        payload: ${! json() }
+
+output:
+  drop: { }
+
+logger:
+  level: ${LOGLEVEL:INFO}
+  add_timestamp: true
+  format: logfmt
+  static_fields:
+    '@service': 'pipeline-b'
+
+tracer:
+  jaeger:
+    agent_address: ${TRACER_AGENT_ADDRESS:localhost:6831}
+    sampler_type: const
+    tags:
+      service.name: 'pipeline-b'

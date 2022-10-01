@@ -1,0 +1,50 @@
+http:
+  address: ${HTTP_ADDRESS:0.0.0.0:4195}
+
+input:
+  label: generate
+  generate:
+    mapping: root = {"test":"message","id":uuid_v4()}
+    interval: 1s
+
+pipeline:
+  processors:
+  - log:
+      level: INFO
+      message: "msg"
+      fields:
+        payload: ${! json() }
+
+output:
+  label: output_kafka
+  kafka:
+    addresses:
+    - ${KAFKA_ADDRESS:localhost:9092}
+    tls:
+      enabled: ${KAFKA_TLS_ENABLED:false}
+    topic: ${KAFKA_TOPIC:messages}
+    target_version: ${KAFKA_VERSION:1.0.0}
+    sasl:
+      mechanism: ${KAFKA_SASL_MECHANISM:none}
+      user: ${KAFKA_USER}
+      password: ${KAFKA_PASSWORD}
+    client_id: ${KAFKA_CLIENT_ID:pipeline-a}
+    max_in_flight: ${KAFKA_MAX_IN_FLIGHT:10}
+    batching:
+      count: ${KAFKA_OUTPUT_BATCH_COUNT:0}
+      byte_size: ${KAFKA_OUTPUT_BATCH_BYTE_SIZE:0}
+      period: ${KAFKA_OUTPUT_BATCH_PERIOD:""}
+
+logger:
+  level: ${LOGLEVEL:INFO}
+  add_timestamp: true
+  format: logfmt
+  static_fields:
+    '@service': 'pipeline-a'
+
+tracer:
+  jaeger:
+    agent_address: ${TRACER_AGENT_ADDRESS:localhost:6831}
+    sampler_type: const
+    tags:
+      service.name: 'pipeline-a'
