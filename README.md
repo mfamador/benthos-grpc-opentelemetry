@@ -12,7 +12,7 @@ Test proppagation through:
 
 ### Benthos pipelines
 
-Test proppagation through inputs/processors/outputs
+Test propagation through inputs/processors/outputs
 
 1. Kafka
 3. Rest
