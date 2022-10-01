@@ -1,8 +1,19 @@
 # go-opentelemetry
 
-Make experiments around opentelemetry
+## Distributed Tracing with OpenTelemetry
 
-# Propagation through:
+### Go apps
+
+Test proppagation though:
+
 1. gRPC
 2. Kafka
 3. Rest
+
+## Benthos pipelines
+
+Test proppagation though inputs/processors/outputs
+
+1. Kafka
+3. Rest
+4. gRPC
