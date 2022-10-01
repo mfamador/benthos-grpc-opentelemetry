@@ -4,7 +4,7 @@
 
 ### Go apps
 
-Test proppagation though:
+Test proppagation through:
 
 1. gRPC
 2. Kafka
@@ -12,7 +12,7 @@ Test proppagation though:
 
 ### Benthos pipelines
 
-Test proppagation though inputs/processors/outputs
+Test proppagation through inputs/processors/outputs
 
 1. Kafka
 3. Rest
