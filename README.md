@@ -64,3 +64,8 @@ kcat -b localhost:9092 -t messages -C -o end
 open http://localhost:16686
 ```
 
+# gRPC
+
+```sh
+protoc -I=. --go-grpc_out=require_unimplemented_servers=false:. --go_out=:. service.proto
+```

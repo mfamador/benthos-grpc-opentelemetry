@@ -14,6 +14,12 @@ pipeline:
       message: "msg"
       fields:
         payload: ${! json() }
+  - foo: {}
+  - log:
+      level: INFO
+      message: "after foo"
+      fields:
+        payload: ${! json() }
 
 output:
   label: output_kafka
