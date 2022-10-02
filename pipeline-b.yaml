@@ -18,6 +18,7 @@ input:
     client_id: ${KAFKA_CLIENT_ID:pipeline-b}
     consumer_group: ${KAFKA_CONSUMER_GROUP:pipeline-b}
     checkpoint_limit: ${KAFKA_CHECKPOINT_LIMIT:1}
+    extract_tracing_map: 'root = meta()'
     batching:
       count: ${KAFKA_OUTPUT_BATCH_COUNT:0}
       byte_size: ${KAFKA_OUTPUT_BATCH_BYTE_SIZE:0}
@@ -30,6 +31,7 @@ pipeline:
       message: "msg"
       fields:
         payload: ${! json() }
+        metadata: ${! meta() }
 
 output:
   drop: { }

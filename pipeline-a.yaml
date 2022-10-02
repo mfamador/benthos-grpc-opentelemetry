@@ -5,7 +5,7 @@ input:
   label: generate
   generate:
     mapping: root = {"test":"message","id":uuid_v4()}
-    interval: 1s
+    interval: 5s
 
 pipeline:
   processors:
@@ -30,6 +30,7 @@ output:
       password: ${KAFKA_PASSWORD}
     client_id: ${KAFKA_CLIENT_ID:pipeline-a}
     max_in_flight: ${KAFKA_MAX_IN_FLIGHT:10}
+    inject_tracing_map: 'meta = this'
     batching:
       count: ${KAFKA_OUTPUT_BATCH_COUNT:0}
       byte_size: ${KAFKA_OUTPUT_BATCH_BYTE_SIZE:0}
