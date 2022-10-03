@@ -26,6 +26,7 @@ input:
 
 pipeline:
   processors:
+  - foo: {}
   - log:
       level: INFO
       message: "msg"

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/benthosdev/benthos/v4/public/service"
 	"github.com/mfamador/go-opentelemetry/servicev1"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -27,8 +28,11 @@ type fooProcessor struct {
 }
 
 func newFooProcessor(conf *service.ParsedConfig, mgr *service.Resources) (service.Processor, error) {
-	conn, _ := grpc.Dial(fmt.Sprintf("localhost:%d", 8181), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, _ := grpc.Dial(fmt.Sprintf("localhost:%d", 8181),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
 	client := servicev1.NewServiceClient(conn)
+
 	return &fooProcessor{
 		logger: mgr.Logger(),
 		conf:   conf,
