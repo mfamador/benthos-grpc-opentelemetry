@@ -53,6 +53,7 @@ func newFooProcessor(conf *service.ParsedConfig, mgr *service.Resources) (servic
 func (m *fooProcessor) Process(ctx context.Context, msg *service.Message) (service.MessageBatch, error) {
 	newMsg := msg.Copy()
 
+	// TODO send trace info to tracing agent
 	span := trace.SpanFromContext(msg.Context())
 	iota := msg.Context().Value("iota")
 	fmt.Println(iota)
