@@ -1,11 +1,11 @@
-http:
-  address: ${HTTP_ADDRESS:0.0.0.0:4195}
+ http:
+   address: ${HTTP_ADDRESS:0.0.0.0:4195}
 
 input:
   label: generate
   generate:
     mapping: root = {"test":"message","id":uuid_v4()}
-    interval: 5s
+    interval: 1s
 
 pipeline:
   processors:
@@ -14,6 +14,8 @@ pipeline:
       message: "msg"
       fields:
         payload: ${! json() }
+        traceParentID: '${! tracing_span().traceparent }'
+  - bloblang: meta bar = "baz"
 
 output:
   label: output_kafka
@@ -30,22 +32,22 @@ output:
       password: ${KAFKA_PASSWORD}
     client_id: ${KAFKA_CLIENT_ID:pipeline-a}
     max_in_flight: ${KAFKA_MAX_IN_FLIGHT:10}
-    inject_tracing_map: 'meta = this'
+    inject_tracing_map: 'meta traceparent = this.traceparent'
     batching:
       count: ${KAFKA_OUTPUT_BATCH_COUNT:0}
       byte_size: ${KAFKA_OUTPUT_BATCH_BYTE_SIZE:0}
       period: ${KAFKA_OUTPUT_BATCH_PERIOD:""}
 
-logger:
-  level: ${LOGLEVEL:INFO}
-  add_timestamp: true
-  format: logfmt
-  static_fields:
-    '@service': 'pipeline-a'
+ logger:
+   level: ${LOGLEVEL:INFO}
+   add_timestamp: true
+   format: logfmt
+   static_fields:
+     '@service': 'pipeline-a'
 
-tracer:
-  jaeger:
-    agent_address: ${TRACER_AGENT_ADDRESS:localhost:6831}
-    sampler_type: const
-    tags:
-      service.name: 'pipeline-a'
+ tracer:
+   jaeger:
+     agent_address: ${TRACER_AGENT_ADDRESS:localhost:6831}
+     sampler_type: const
+     tags:
+       service.name: 'pipeline-a'

@@ -21,7 +21,9 @@ func main() {
 		if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
-		grpcServer := grpc.NewServer(grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()))
+		grpcServer := grpc.NewServer(
+			grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()),
+			grpc.StreamInterceptor(otelgrpc.StreamServerInterceptor()))
 		server := grpcservice.ServiceImpl{}
 		servicev1.RegisterServiceServer(grpcServer, server)
 		if err := grpcServer.Serve(lis); err != nil {

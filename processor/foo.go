@@ -10,6 +10,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 )
 
 func init() {
@@ -36,7 +37,8 @@ type fooProcessor struct {
 func newFooProcessor(conf *service.ParsedConfig, mgr *service.Resources) (service.Processor, error) {
 	conn, _ := grpc.Dial(fmt.Sprintf("localhost:%d", 8181),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
+		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(otelgrpc.StreamClientInterceptor()))
 	client := servicev1.NewServiceClient(conn)
 
 	return &fooProcessor{
@@ -51,23 +53,29 @@ func newFooProcessor(conf *service.ParsedConfig, mgr *service.Resources) (servic
 func (m *fooProcessor) Process(ctx context.Context, msg *service.Message) (service.MessageBatch, error) {
 	newMsg := msg.Copy()
 
-	// call grpc service
+	span := trace.SpanFromContext(msg.Context())
+	iota := msg.Context().Value("iota")
+	fmt.Println(iota)
+	traceID := span.SpanContext().TraceID()
+	spanID := span.SpanContext().SpanID()
+	newMsg.MetaSet(metaKey, traceID.String())
+	newMsg.MetaSet(spanKey, spanID.String())
+
+	md := metadata.Pairs("traceparent", fmt.Sprintf("00-%s-%s-01", traceID.String(), spanID.String()))
+	ctx = metadata.NewOutgoingContext(ctx, md)
+
 	resp, _ := m.client.Ping(ctx, &servicev1.PingRequest{Message: "foo"})
 
 	msgs, _ := newMsg.AsStructured()
 	unboxed, ok := msgs.(map[string]any)
 	if ok {
-		unboxed["foo"] = resp.Message
-		bytes, _ := json.Marshal(unboxed)
-		newMsg.SetBytes(bytes)
-	}
+		if resp != nil {
+			unboxed["foo"] = resp.Message
+			bytes, _ := json.Marshal(unboxed)
+			newMsg.SetBytes(bytes)
+		}
 
-	// WARNING: when running as a Stream, Benthos is not able to get the trace_id from message context.
-	tr := trace.SpanFromContext(msg.Context())
-	traceID := tr.SpanContext().TraceID()
-	spanID := tr.SpanContext().SpanID()
-	newMsg.MetaSet(metaKey, traceID.String())
-	newMsg.MetaSet(spanKey, spanID.String())
+	}
 
 	return []*service.Message{newMsg}, nil
 }
