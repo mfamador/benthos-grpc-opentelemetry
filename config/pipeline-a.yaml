@@ -1,5 +1,5 @@
- http:
-   address: ${HTTP_ADDRESS:0.0.0.0:4195}
+http:
+  address: ${HTTP_ADDRESS:0.0.0.0:4195}
 
 input:
   label: generate
@@ -38,16 +38,16 @@ output:
       byte_size: ${KAFKA_OUTPUT_BATCH_BYTE_SIZE:0}
       period: ${KAFKA_OUTPUT_BATCH_PERIOD:""}
 
- logger:
-   level: ${LOGLEVEL:INFO}
-   add_timestamp: true
-   format: logfmt
-   static_fields:
-     '@service': 'pipeline-a'
+logger:
+  level: ${LOGLEVEL:INFO}
+  add_timestamp: true
+  format: logfmt
+  static_fields:
+    '@service': 'pipeline-a'
 
- tracer:
-   jaeger:
-     agent_address: ${TRACER_AGENT_ADDRESS:localhost:6831}
-     sampler_type: const
-     tags:
-       service.name: 'pipeline-a'
+tracer:
+  jaeger:
+    agent_address: ${TRACER_AGENT_ADDRESS:localhost:6831}
+    sampler_type: const
+    tags:
+      service.name: 'pipeline-a'
