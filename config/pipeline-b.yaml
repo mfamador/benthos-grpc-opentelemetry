@@ -26,7 +26,7 @@ input:
 
 pipeline:
   processors:
-  - foo: {}
+  - foo: { }
   - log:
       level: INFO
       message: "msg"
@@ -48,8 +48,8 @@ logger:
     '@service': 'pipeline-b'
 
 tracer:
-  jaeger:
-    agent_address: ${TRACER_AGENT_ADDRESS:localhost:6831}
-    sampler_type: const
+  open_telemetry_collector:
+    grpc:
+    - url: ${TRACER_AGENT_ADDRESS:localhost:4317}
     tags:
       service.name: 'pipeline-b'

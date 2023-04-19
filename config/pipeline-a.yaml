@@ -46,8 +46,8 @@ logger:
     '@service': 'pipeline-a'
 
 tracer:
-  jaeger:
-    agent_address: ${TRACER_AGENT_ADDRESS:localhost:6831}
-    sampler_type: const
+  open_telemetry_collector:
+    grpc:
+    - url: ${TRACER_AGENT_ADDRESS:localhost:4317}
     tags:
       service.name: 'pipeline-a'
