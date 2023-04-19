@@ -14,7 +14,7 @@ pipeline:
       message: "msg"
       fields:
         payload: ${! json() }
-        traceParentID: '${! tracing_span().traceparent }'
+        traceID: '${! tracing_id() }'
   - bloblang: meta bar = "baz"
 
 output:

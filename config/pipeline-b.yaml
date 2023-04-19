@@ -33,9 +33,7 @@ pipeline:
       fields:
         payload: ${! json() }
         metadata: ${! meta() }
-        traceParentID: '${! tracing_span().traceparent }'
-        traceID: '${! meta("trace_id") }'
-        spanID: '${! meta("span_id") }'
+        traceID: '${! tracing_id() }'
 
 output:
   drop: { }

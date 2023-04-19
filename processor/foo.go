@@ -7,10 +7,8 @@ import (
 	"github.com/benthosdev/benthos/v4/public/service"
 	"github.com/mfamador/go-opentelemetry/servicev1"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
 )
 
 func init() {
@@ -53,20 +51,19 @@ func newFooProcessor(conf *service.ParsedConfig, mgr *service.Resources) (servic
 func (m *fooProcessor) Process(ctx context.Context, msg *service.Message) (service.MessageBatch, error) {
 	newMsg := msg.Copy()
 
-	// TODO send trace info to tracing agent
-	span := trace.SpanFromContext(msg.Context())
-	iota := msg.Context().Value("iota")
-	fmt.Println(iota)
-	traceID := span.SpanContext().TraceID()
-	spanID := span.SpanContext().SpanID()
-	newMsg.MetaSet(metaKey, traceID.String())
-	newMsg.MetaSet(spanKey, spanID.String())
+	//// TODO send trace info to tracing agent
+	//span := trace.SpanFromContext(msg.Context())
+	//iota := msg.Context().Value("iota")
+	//fmt.Println(iota)
+	//traceID := span.SpanContext().TraceID()
+	//spanID := span.SpanContext().SpanID()
+	//newMsg.MetaSet(metaKey, traceID.String())
+	//newMsg.MetaSet(spanKey, spanID.String())
+	//
+	//md := metadata.Pairs("traceparent", fmt.Sprintf("00-%s-%s-01", traceID.String(), spanID.String()))
+	//ctx = metadata.NewOutgoingContext(ctx, md)
 
-	md := metadata.Pairs("traceparent", fmt.Sprintf("00-%s-%s-01", traceID.String(), spanID.String()))
-	ctx = metadata.NewOutgoingContext(ctx, md)
-
-	resp, _ := m.client.Ping(ctx, &servicev1.PingRequest{Message: "foo"})
-
+	resp, _ := m.client.Ping(msg.Context(), &servicev1.PingRequest{Message: "foo"})
 	msgs, _ := newMsg.AsStructured()
 	unboxed, ok := msgs.(map[string]any)
 	if ok {
@@ -75,9 +72,7 @@ func (m *fooProcessor) Process(ctx context.Context, msg *service.Message) (servi
 			bytes, _ := json.Marshal(unboxed)
 			newMsg.SetBytes(bytes)
 		}
-
 	}
-
 	return []*service.Message{newMsg}, nil
 }
 
